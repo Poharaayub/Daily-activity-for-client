@@ -239,10 +239,19 @@
         let allActivities = [];
         let areas = ['Semua'];
         let currentIndex = 0;
+        let isMenuOpen = false;
 
         const dataPromise = fetch(`${csvUrl}&cb=${Date.now()}`).then(res => res.text());
 
         async function init() {
+            // Pasang event listener untuk tombol kembali browser/ponsel
+            window.addEventListener('popstate', (event) => {
+                if (isMenuOpen) {
+                    // Jika menu terbuka, tutup menu tanpa pindah halaman
+                    closeMenuUI();
+                }
+            });
+
             try {
                 const text = await dataPromise;
                 processCSV(text);
@@ -379,12 +388,23 @@
         }
 
         function toggleAreaMenu(show) {
-            const menu = document.getElementById('area-menu');
             if (show) {
-                menu.classList.add('active');
+                isMenuOpen = true;
+                document.getElementById('area-menu').classList.add('active');
+                // Masukkan state baru ke history agar tombol back bisa dideteksi
+                history.pushState({ menu: 'open' }, '');
             } else {
-                menu.classList.remove('active');
+                if (isMenuOpen) {
+                    // Jika ditutup secara manual (klik overlay/tutup), 
+                    // kita panggil history.back() yang akan memicu closeMenuUI via popstate
+                    history.back();
+                }
             }
+        }
+
+        function closeMenuUI() {
+            isMenuOpen = false;
+            document.getElementById('area-menu').classList.remove('active');
         }
 
         if (document.readyState === 'loading') {
