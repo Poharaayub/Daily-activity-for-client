@@ -2,77 +2,91 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Google Tasks</title>
-    <!-- Preconnect ke Google Fonts -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Google Tasks M3 2026 - Modal Popup</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --google-blue: #1a73e8;
-            --google-blue-variant: #d2e3fc;
-            --google-surface: #ffffff;
-            --google-text-primary: #202124;
-            --google-text-secondary: #5f6368;
-            --google-divider: #dadce0;
-            --google-bg: #ffffff;
-            --google-active-tab-bg: #e8f0fe;
+            --m3-primary: #0056d2;
+            --m3-primary-container: #d3e4ff;
+            --m3-on-primary-container: #001c38;
+            --m3-surface: #fdfdff;
+            --m3-surface-container: #f3f4f9;
+            --m3-on-surface: #1a1c1e;
+            --m3-on-surface-variant: #44474e;
+            --m3-outline-variant: #e0e2e6;
+            --m3-easing: cubic-bezier(0.05, 0.7, 0.1, 1);
         }
 
         body { 
             font-family: 'Roboto', sans-serif;
-            background-color: var(--google-bg);
-            color: var(--google-text-primary);
+            background-color: var(--m3-surface);
+            color: var(--m3-on-surface);
             margin: 0;
             padding: 0;
             overflow: hidden;
             height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            touch-action: manipulation;
         }
 
         .google-sans { font-family: 'Google Sans', sans-serif; }
+
+        /* Header & Tab Bar */
+        .header-container {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--m3-surface);
+            border-bottom: 1px solid var(--m3-outline-variant);
+        }
 
         .tab-bar {
             display: flex;
             overflow-x: auto;
             white-space: nowrap;
-            padding: 8px 12px 0 12px;
-            border-bottom: 1px solid var(--google-divider);
+            padding: 12px 8px;
             scrollbar-width: none;
-            background: var(--google-surface);
-            z-index: 100;
+            align-items: center;
+            -webkit-overflow-scrolling: touch;
         }
         .tab-bar::-webkit-scrollbar { display: none; }
 
         .tab-item {
-            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: fit-content;
+            height: 40px;
+            padding: 0 20px;
             font-family: 'Google Sans', sans-serif;
             font-size: 14px;
             font-weight: 500;
-            color: var(--google-text-secondary);
+            color: var(--m3-on-surface-variant);
             cursor: pointer;
             position: relative;
+            transition: background 0.2s var(--m3-easing), color 0.2s var(--m3-easing);
+            border-radius: 20px;
+            margin: 0 4px;
+            user-select: none;
         }
 
-        .tab-item.active { color: var(--google-blue); }
-        .tab-item.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 20%;
-            right: 20%;
-            height: 3px;
-            background-color: var(--google-blue);
-            border-radius: 3px 3px 0 0;
+        .tab-item.active {
+            color: var(--m3-on-primary-container);
+            background: var(--m3-primary-container);
         }
 
+        /* View Pager */
         .view-pager {
             display: flex;
             width: 100%;
-            height: calc(100vh - 53px);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            height: calc(100vh - 65px);
+            transform: translate3d(0, 0, 0);
             will-change: transform;
+            transition: transform 0.35s var(--m3-easing);
         }
 
         .page-content {
@@ -80,59 +94,77 @@
             width: 100%;
             height: 100%;
             overflow-y: auto;
-            padding-bottom: 100px;
             -webkit-overflow-scrolling: touch;
+            padding: 12px 16px 120px 16px;
+            overscroll-behavior-y: contain;
         }
 
-        .task-item {
+        /* Task Card */
+        .task-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 4px;
             display: flex;
             align-items: flex-start;
-            padding: 14px 20px;
-            cursor: pointer;
-            border-bottom: 1px solid #f8f9fa;
+            border: none;
+            transition: background 0.15s ease;
+            user-select: none;
+        }
+        .task-card:active {
+            background: var(--m3-surface-container);
         }
 
-        .task-check {
-            width: 20px;
-            height: 20px;
-            border: 2px solid #dadce0;
+        .task-check-circle {
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--m3-outline-variant);
             border-radius: 50%;
             margin-right: 16px;
-            margin-top: 3px;
+            margin-top: 1px;
             flex-shrink: 0;
         }
 
         .task-title {
             font-size: 15px;
-            color: var(--google-text-primary);
-            line-height: 1.4;
-            margin-bottom: 2px;
+            color: var(--m3-on-surface);
+            line-height: 1.5;
+            font-weight: 400;
+            margin-bottom: 6px;
         }
 
-        .task-details {
+        .task-meta {
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
+        }
+
+        .m3-chip {
             font-size: 11px;
-            color: var(--google-text-secondary);
+            background: var(--m3-surface-container);
+            color: var(--m3-on-surface-variant);
+            padding: 2px 10px;
+            border-radius: 6px;
         }
 
-        .detail-chip {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            background: #f1f3f4;
-            padding: 2px 8px;
-            border-radius: 4px;
+        .m3-tag-area {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--m3-primary);
+            background: rgba(0, 86, 210, 0.05);
+            padding: 2px 10px;
+            border-radius: 6px;
+            text-transform: uppercase;
         }
 
-        .fab {
+        /* FAB */
+        .fab-2026 {
             position: fixed;
             bottom: 24px;
             right: 24px;
-            background: white;
-            color: var(--google-blue);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            background: var(--m3-primary-container);
+            color: var(--m3-on-primary-container);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
             width: 56px;
             height: 56px;
             border-radius: 16px;
@@ -141,131 +173,132 @@
             justify-content: center;
             z-index: 200;
             cursor: pointer;
+            transition: transform 0.2s var(--m3-easing);
         }
+        .fab-2026:active { transform: scale(0.9); }
 
-        /* Modal Popup Styles */
-        #area-menu {
+        /* Modal Popup - Menggantikan Bottom Sheet */
+        #modal-overlay {
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.5);
             z-index: 300;
             display: none;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            backdrop-filter: blur(2px);
             align-items: center;
             justify-content: center;
             padding: 24px;
-            backdrop-filter: blur(2px);
         }
 
-        .menu-content {
-            background: var(--google-surface);
+        .modal-container {
+            background: white;
             width: 100%;
-            max-width: 320px;
+            max-width: 400px;
             border-radius: 28px;
-            padding: 20px 0;
+            padding: 12px 0;
             max-height: 80vh;
             overflow-y: auto;
-            box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14);
             transform: scale(0.9);
-            opacity: 0;
-            transition: transform 0.2s cubic-bezier(0, 0, 0.2, 1), opacity 0.2s;
+            transition: transform 0.3s var(--m3-easing);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
         }
 
-        #area-menu.active { display: flex; }
-        #area-menu.active .menu-content { 
-            transform: scale(1); 
-            opacity: 1; 
-        }
+        #modal-overlay.active { display: flex; opacity: 1; }
+        #modal-overlay.active .modal-container { transform: scale(1); }
 
-        .menu-item {
-            padding: 12px 24px;
+        .sheet-item {
+            padding: 14px 24px;
             display: flex;
             align-items: center;
             gap: 16px;
             font-size: 15px;
-            color: var(--google-text-primary);
+            color: var(--m3-on-surface);
             cursor: pointer;
+            margin: 4px 12px;
+            border-radius: 16px;
             transition: background 0.2s;
         }
 
-        .menu-item:active { background-color: #f1f3f4; }
-
-        .menu-item.active {
-            color: var(--google-blue);
-            background-color: var(--google-active-tab-bg);
-            font-weight: 500;
+        .sheet-item.active {
+            background-color: var(--m3-primary-container);
+            color: var(--m3-on-primary-container);
+            font-weight: 600;
         }
 
-        .loader {
-            border: 3px solid #f1f3f4;
-            border-top: 3px solid var(--google-blue);
+        .loader-2026 {
+            width: 36px;
+            height: 36px;
+            border: 4px solid var(--m3-primary-container);
+            border-top: 4px solid var(--m3-primary);
             border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            animation: spin 0.8s linear infinite;
+            animation: spin 0.8s var(--m3-easing) infinite;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <nav class="tab-bar" id="tab-container"></nav>
+    <div class="header-container">
+        <nav class="tab-bar" id="tab-container"></nav>
+    </div>
 
     <div id="loading-overlay" class="fixed inset-0 bg-white z-[500] flex flex-col items-center justify-center transition-opacity duration-300">
-        <div class="loader"></div>
-        <p class="mt-4 text-sm text-[#5f6368] google-sans">Singkronisasi...</p>
+        <div class="loader-2026"></div>
+        <p class="mt-4 text-sm text-[#44474e] google-sans font-medium">Sinkronisasi...</p>
     </div>
 
     <div class="view-pager" id="view-pager"></div>
 
-    <div class="fab" onclick="toggleAreaMenu(true)">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
+    <div class="fab-2026" onclick="openModal()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
     </div>
 
-    <!-- Popup Modal -->
-    <div id="area-menu" onclick="toggleAreaMenu(false)">
-        <div class="menu-content" onclick="event.stopPropagation()">
-            <div class="px-6 mb-4">
-                <h3 class="google-sans text-xl font-medium text-gray-900">Area Kerja</h3>
-            </div>
+    <!-- Modal Popup Structure -->
+    <div id="modal-overlay" onclick="closeModal()">
+        <div class="modal-container" onclick="event.stopPropagation()">
             <div id="menu-items-list"></div>
-            <div class="mt-4 px-6">
-                <button onclick="toggleAreaMenu(false)" class="w-full py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-full transition-colors">Tutup</button>
-            </div>
         </div>
     </div>
 
     <script>
         const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0Q384rB6J_mt1Iy1acl901Sae-YjV3C3Z3RluJ0WepRFyG50Gm2NMuPIcWb1AMYBB5jx7dMSPU_Lo/pub?output=csv';
+        
         let allActivities = [];
-        let areas = ['Semua'];
+        let areas = [];
         let currentIndex = 0;
-        let isMenuOpen = false;
-
-        const dataPromise = fetch(`${csvUrl}&cb=${Date.now()}`).then(res => res.text());
+        let isModalOpen = false;
 
         async function init() {
-            // Pasang event listener untuk tombol kembali browser/ponsel
-            window.addEventListener('popstate', (event) => {
-                if (isMenuOpen) {
-                    // Jika menu terbuka, tutup menu tanpa pindah halaman
-                    closeMenuUI();
+            // Aktifkan fungsi kembali saat modal terbuka
+            window.addEventListener('popstate', (e) => { 
+                if (isModalOpen) {
+                    closeModalInternal(); 
                 }
             });
 
             try {
-                const text = await dataPromise;
+                const res = await fetch(`${csvUrl}&cb=${Date.now()}`);
+                const text = await res.text();
                 processCSV(text);
-                hideLoading();
+                setTimeout(hideLoading, 500);
             } catch (err) {
-                console.error("Gagal memuat data:", err);
-                document.querySelector('#loading-overlay p').textContent = "Gagal memuat data.";
+                console.error(err);
+                document.querySelector('#loading-overlay p').textContent = "Data tidak ditemukan.";
             }
         }
 
         function hideLoading() {
             const overlay = document.getElementById('loading-overlay');
-            overlay.style.opacity = '0';
-            setTimeout(() => overlay.style.display = 'none', 300);
+            if (overlay) {
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.style.display = 'none', 300);
+            }
         }
 
         function processCSV(csv) {
@@ -273,13 +306,13 @@
             if (rows.length < 2) return;
 
             const headers = rows[0].split(',').map(h => h.trim().toUpperCase().replace(/^"|"$/g, ''));
-            const jobIdx = headers.findIndex(h => h === 'JOB DESK' || h === 'JOBDESK');
+            const jobIdx = headers.findIndex(h => h.includes('JOB'));
             const areaIdx = headers.indexOf('AREA');
             const memberIdx = headers.indexOf('MEMBER');
             const timeIdx = headers.indexOf('TIME');
 
-            allActivities = [];
             const areaSet = new Set();
+            allActivities = [];
 
             for (let i = 1; i < rows.length; i++) {
                 if (!rows[i].trim()) continue;
@@ -297,7 +330,7 @@
                 }
             }
             
-            areas = ['Semua', ...Array.from(areaSet).sort()];
+            areas = ['Semua Tugas', ...Array.from(areaSet).sort()];
             renderUI();
             setupSwipe();
         }
@@ -307,111 +340,135 @@
             const pager = document.getElementById('view-pager');
             const menuList = document.getElementById('menu-items-list');
 
-            const tabFrag = document.createDocumentFragment();
-            const pagerFrag = document.createDocumentFragment();
-            const menuFrag = document.createDocumentFragment();
-
-            areas.forEach((area, index) => {
-                const tab = document.createElement('div');
-                tab.className = `tab-item ${index === 0 ? 'active' : ''}`;
-                tab.textContent = area;
-                tab.onclick = () => goToPage(index);
-                tabFrag.appendChild(tab);
-
-                const page = document.createElement('div');
-                page.className = 'page-content';
-                const tasks = area === 'Semua' ? allActivities : allActivities.filter(a => a.area === area);
-                
-                page.innerHTML = tasks.length ? tasks.map(t => `
-                    <div class="task-item">
-                        <div class="task-check"></div>
-                        <div class="flex-1">
-                            <div class="task-title">${t.job}</div>
-                            <div class="task-details">
-                                <span class="detail-chip">${t.member}</span>
-                                <span class="detail-chip">${t.time}</span>
-                                ${area === 'Semua' ? `<span class="ml-auto text-[9px] uppercase text-gray-400 font-bold">${t.area}</span>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                `).join('') : '<div class="p-20 text-center text-gray-400">Tidak ada tugas</div>';
-                pagerFrag.appendChild(page);
-
-                const menu = document.createElement('div');
-                menu.className = `menu-item ${index === 0 ? 'active' : ''}`;
-                menu.innerHTML = `<span class="flex-1">${area}</span>`;
-                menu.onclick = () => { goToPage(index); toggleAreaMenu(false); };
-                menuFrag.appendChild(menu);
-            });
-
             tabContainer.innerHTML = '';
             pager.innerHTML = '';
             menuList.innerHTML = '';
-            
-            tabContainer.appendChild(tabFrag);
-            pager.appendChild(pagerFrag);
-            menuList.appendChild(menuFrag);
+
+            areas.forEach((areaName, index) => {
+                const tab = document.createElement('div');
+                tab.className = `tab-item ${index === 0 ? 'active' : ''}`;
+                tab.innerHTML = `<span>${areaName}</span>`;
+                tab.onclick = () => goToPage(index);
+                tabContainer.appendChild(tab);
+
+                const page = document.createElement('div');
+                page.className = 'page-content';
+                const tasks = index === 0 ? allActivities : allActivities.filter(a => a.area === areaName);
+                
+                page.innerHTML = tasks.length ? tasks.map(t => `
+                    <div class="task-card">
+                        <div class="task-check-circle"></div>
+                        <div class="flex-1">
+                            <div class="task-title">${t.job}</div>
+                            <div class="task-meta">
+                                <span class="m3-chip">${t.member}</span>
+                                <span class="m3-chip">${t.time}</span>
+                                ${index === 0 ? `<span class="m3-tag-area">${t.area}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `).join('') : '<div class="py-32 text-center opacity-40"><p class="google-sans text-lg">Semua tugas selesai!</p></div>';
+                pager.appendChild(page);
+
+                const menu = document.createElement('div');
+                menu.className = `sheet-item ${index === 0 ? 'active' : ''}`;
+                menu.innerHTML = `<span class="flex-1">${areaName}</span>`;
+                menu.onclick = () => { goToPage(index); closeModal(); };
+                menuList.appendChild(menu);
+            });
         }
 
         function goToPage(index) {
             currentIndex = index;
-            document.getElementById('view-pager').style.transform = `translateX(-${index * 100}%)`;
+            document.getElementById('view-pager').style.transform = `translate3d(-${index * 100}%, 0, 0)`;
             
             const tabs = document.querySelectorAll('.tab-item');
             tabs.forEach((t, i) => {
                 t.classList.toggle('active', i === index);
-                if(i === index) t.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                if(i === index) t.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
             });
 
-            const menuItems = document.querySelectorAll('.menu-item');
-            menuItems.forEach((m, i) => m.classList.toggle('active', i === index));
+            const sheetItems = document.querySelectorAll('.sheet-item');
+            sheetItems.forEach((m, i) => m.classList.toggle('active', i === index));
         }
 
         function setupSwipe() {
             const pager = document.getElementById('view-pager');
-            let sX = 0;
+            let sX = 0, sY = 0, currentTX = 0;
+            let isHorizontalSwipe = false;
+            let isFirstMove = true;
             
             pager.addEventListener('touchstart', e => {
                 sX = e.touches[0].clientX;
+                sY = e.touches[0].clientY;
                 pager.style.transition = 'none';
+                currentTX = -currentIndex * pager.offsetWidth;
+                isHorizontalSwipe = false;
+                isFirstMove = true;
             }, { passive: true });
+
+            pager.addEventListener('touchmove', e => {
+                const mX = e.touches[0].clientX;
+                const mY = e.touches[0].clientY;
+                const dX = mX - sX;
+                const dY = mY - sY;
+
+                if (isFirstMove) {
+                    if (Math.abs(dX) > Math.abs(dY) && Math.abs(dX) > 5) {
+                        isHorizontalSwipe = true;
+                    }
+                    isFirstMove = false;
+                }
+
+                if (isHorizontalSwipe) {
+                    let move = currentTX + dX;
+                    if ((currentIndex === 0 && dX > 0) || (currentIndex === areas.length - 1 && dX < 0)) {
+                        move = currentTX + dX * 0.2;
+                    }
+                    pager.style.transform = `translate3d(${move}px, 0, 0)`;
+                }
+            }, { passive: false });
 
             pager.addEventListener('touchend', e => {
                 const dX = sX - e.changedTouches[0].clientX;
-                pager.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-                if (Math.abs(dX) > 50) { 
+                pager.style.transition = 'transform 0.35s var(--m3-easing)';
+                
+                if (isHorizontalSwipe && Math.abs(dX) > 60) { 
                     if (dX > 0 && currentIndex < areas.length - 1) goToPage(currentIndex + 1);
                     else if (dX < 0 && currentIndex > 0) goToPage(currentIndex - 1);
                     else goToPage(currentIndex);
-                } else goToPage(currentIndex);
+                } else {
+                    goToPage(currentIndex);
+                }
             });
         }
 
-        function toggleAreaMenu(show) {
-            if (show) {
-                isMenuOpen = true;
-                document.getElementById('area-menu').classList.add('active');
-                // Masukkan state baru ke history agar tombol back bisa dideteksi
-                history.pushState({ menu: 'open' }, '');
-            } else {
-                if (isMenuOpen) {
-                    // Jika ditutup secara manual (klik overlay/tutup), 
-                    // kita panggil history.back() yang akan memicu closeMenuUI via popstate
-                    history.back();
-                }
+        function openModal() {
+            const modal = document.getElementById('modal-overlay');
+            isModalOpen = true;
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('active'), 10);
+            
+            // Push state ke history untuk mengaktifkan back button
+            history.pushState({ modal: 'open' }, '');
+        }
+
+        function closeModal() {
+            if (isModalOpen) {
+                history.back(); // Trigger popstate untuk menutup modal
             }
         }
 
-        function closeMenuUI() {
-            isMenuOpen = false;
-            document.getElementById('area-menu').classList.remove('active');
+        function closeModalInternal() {
+            isModalOpen = false;
+            const modal = document.getElementById('modal-overlay');
+            if (modal) {
+                modal.classList.remove('active');
+                setTimeout(() => { if(!isModalOpen) modal.style.display = 'none'; }, 300);
+            }
         }
 
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
+        init();
     </script>
 </body>
 </html>
